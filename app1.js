@@ -417,7 +417,7 @@
     });
   }
 
-  /* ---------- 背景音乐：尝试自动播放 + 悬浮按钮控制 ---------- */
+  /* ---------- 背景音乐：自动播放 + 跨页面续播 + 悬浮按钮 ---------- */
   function initBgm() {
     if (document.querySelector(".music-fab")) return;
 
@@ -441,8 +441,24 @@
       btn.querySelector(".music-fab__ico").textContent = playing ? "♪" : "♪";
     };
 
-    // 尝试自动播放（浏览器可能拦截）
-    const tryPlay = function () {
+    const bgmOn = function () {
+      try { return localStorage.getItem("bgm-off") !== "1"; } catch (e) { return true; }
+    };
+
+    // 记录播放位置（翻页后从断点继续）
+    audio.addEventListener("timeupdate", function () {
+      if (!audio.paused) {
+        try { localStorage.setItem("bgm-time", String(audio.currentTime)); } catch (e) {}
+      }
+    });
+
+    // 从上次位置开始播放
+    const startPlay = function () {
+      let savedTime = 0;
+      try { savedTime = parseFloat(localStorage.getItem("bgm-time") || "0"); } catch (e) {}
+      if (savedTime > 0 && isFinite(audio.duration) && savedTime < audio.duration - 1) {
+        try { audio.currentTime = savedTime; } catch (e) {}
+      }
       const p = audio.play();
       if (p && p.then) {
         p.then(function () { setPlaying(true); })
@@ -452,12 +468,15 @@
       }
     };
 
-    // 记住用户偏好（跨页面保持）
-    const saved = localStorage.getItem("bgm-off");
-    if (saved !== "1") {
-      tryPlay();
+    const boot = function () {
+      if (bgmOn()) startPlay();
+      else setPlaying(false);
+    };
+
+    if (audio.readyState >= 1) {
+      boot();
     } else {
-      setPlaying(false);
+      audio.addEventListener("loadedmetadata", boot, { once: true });
     }
 
     btn.addEventListener("click", function () {
