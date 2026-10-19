@@ -431,7 +431,7 @@
     audio.id = "siteBgm";
     audio.loop = true;
     audio.preload = "auto";
-    audio.src = "assets/bgm1.wav";
+    audio.src = "assets/bgm-skyblue.mp3";
     document.body.appendChild(audio);
 
     const btn = document.createElement("button");
