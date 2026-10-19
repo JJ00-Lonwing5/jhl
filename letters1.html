@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="远方来信 — 如果你也曾在某段旅途中停留，欢迎写下几句话">
+  <meta name="theme-color" content="#f4f1ea">
+  <title>远方来信 · 静帧 — 嵇翰林</title>
+  <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="site-head">
+    <a class="brand" href="journal1.html">静帧<small>STILL FRAME</small></a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="siteNav" aria-label="打开菜单">MENU</button>
+    <nav class="site-nav" id="siteNav" aria-label="主导航">
+      <a href="about1.html" data-page="about1.html">关于</a>
+      <a href="journeys1.html" data-page="journeys1.html">旅行</a>
+      <a href="music1.html" data-page="music1.html">音乐</a>
+      <a href="films1.html" data-page="films1.html">电影</a>
+      <a href="games1.html" data-page="games1.html">游戏</a>
+      <a href="learning1.html" data-page="learning1.html">学习</a>
+      <a href="relationships1.html" data-page="relationships1.html">关系</a>
+      <a href="contact1.html" data-page="contact1.html">联系</a>
+      <a href="letters1.html" data-page="letters1.html">来信</a>
+    </nav>
+  </header>
+
+  <main id="main" class="page shell">
+    <section class="page-intro">
+      <p class="kicker kicker--russet">Letters · From Afar</p>
+      <h1 class="page-title">如果你也曾在<br>某段旅途中<span class="em">停留</span>，欢迎写下几句话。</h1>
+    </section>
+
+    <section class="letters-wrap">
+      <form class="letter-form" id="letterForm" novalidate>
+        <p class="no">Letter / 09</p>
+        <p class="lead">写下一封短小的信，它会落在下面的纸片上。</p>
+
+        <div class="field">
+          <label for="letterName">你的名字（可选）</label>
+          <input type="text" id="letterName" name="name" autocomplete="name" maxlength="40" placeholder="如何称呼你">
+        </div>
+
+        <div class="field">
+          <label for="letterMsg">留言内容（必填）</label>
+          <textarea id="letterMsg" name="message" required maxlength="1000" placeholder="写下你想说的话……"></textarea>
+        </div>
+
+        <label class="check-row">
+          <input type="checkbox" id="letterAnon">
+          匿名留言（显示为「匿名访客」）
+        </label>
+
+        <button type="submit" class="submit-btn">发送来信</button>
+        <p class="form-hint" id="letterHint">留言仅保存在当前页面，刷新后会自动消失，不会永久保存。</p>
+      </form>
+
+      <div class="letter-feed">
+        <div class="letter-feed__head">
+          <h2>来信纸片</h2>
+          <span class="count" id="letterCount">0 封来信</span>
+        </div>
+
+        <div class="letter-list-scroll">
+          <div id="letterEmpty" class="letter-empty">还没有来信，做第一个停留的人吧。</div>
+          <div id="letterList" aria-live="polite"></div>
+        </div>
+        <div id="letterLive" class="sr-only" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <div class="next-film-wrap">
+      <a class="next-film" href="journal1.html">
+        继续放映 <span class="arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="app1.js"></script>
+</body>
+</html>
