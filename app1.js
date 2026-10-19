@@ -419,6 +419,12 @@
 
   /* ---------- 背景音乐：自动播放 + 跨页面续播 + 悬浮按钮 ---------- */
   function initBgm() {
+    // 在 iframe 内（被外层 shell 承载）不创建播放器，音乐由外层统一播放，切换页面不中断
+    try {
+      if (window.self !== window.top) return;
+    } catch (e) {
+      return;
+    }
     if (document.querySelector(".music-fab")) return;
 
     const audio = document.createElement("audio");
