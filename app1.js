@@ -4,16 +4,15 @@
 (function () {
   "use strict";
 
-  /* ---------- Firebase 配置（留言永久保存 + 实时显示） ---------- */
-  const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyB6UgnCjXme2AAfbkme4gtz0P8OYgORi9I",
-    authDomain: "jj00-cfbb9.firebaseapp.com",
-    projectId: "jj00-cfbb9",
-    storageBucket: "jj00-cfbb9.firebasestorage.app",
-    messagingSenderId: "752953532384",
-    appId: "1:752953532384:web:4e770ba226addfe8aed585"
+  /* ---------- 留言数据库配置（restdb.io，国内可访问） ----------
+     网址、Key、集合都由本站配置好，无需改动。
+  ------------------------------------------------------------- */
+  const RESTDB_CONFIG = {
+    url: "https://letterjj-21c7.restdb.io",
+    apiKey: "6ad605f40f7a2937358bd168",
+    collection: "letters"
   };
-  const FB_ENABLED = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+  const RESTDB_ON = !!(RESTDB_CONFIG.url && RESTDB_CONFIG.apiKey);
 
   /* ---------- 移动端菜单（MENU / Escape 关闭） ---------- */
   function initMenu() {
@@ -183,61 +182,84 @@
       }
     };
 
-    // ---------- Firebase 模式 ----------
-    if (FB_ENABLED && window.firebase) {
+    // ---------- restdb.io 模式：永久保存 + 自动刷新显示 ----------
+    if (RESTDB_ON && window.fetch) {
+      const colUrl = RESTDB_CONFIG.url + "/rest/" + RESTDB_CONFIG.collection;
+      const headers = {
+        "x-apikey": RESTDB_CONFIG.apiKey,
+        "Content-Type": "application/json"
+      };
+      let pollTimer = null;
+
       if (hint) hint.textContent = "留言会永久保存，并实时显示在下方。";
-      try {
-        if (!firebase.apps.length) {
-          firebase.initializeApp(FIREBASE_CONFIG);
-        }
-        const db = firebase.firestore();
-        const lettersCol = db.collection("letters");
 
-        // 实时监听：数据库一有变化就刷新列表
-        lettersCol.orderBy("createdAt", "desc").onSnapshot(function (snapshot) {
-          list.innerHTML = "";
-          count = 0;
-          snapshot.forEach(function (doc) {
-            const d = doc.data();
-            const who = d.anon ? "匿名访客" : (d.name || "未署名");
-            let when = fmtTime(new Date());
-            if (d.createdAt && d.createdAt.toDate) {
-              when = fmtTime(d.createdAt.toDate());
-            }
-            appendNote(who, d.message || "", when);
-          });
-          renderEmpty();
-        }, function () {
-          if (hint) hint.textContent = "留言加载失败，请检查网络或 Firebase 配置。";
+      const renderFromData = function (data) {
+        if (!Array.isArray(data)) throw new Error("bad data");
+        list.innerHTML = "";
+        count = 0;
+        data.forEach(function (d) {
+          const who = d.name || "未署名";
+          const when = d.time ? fmtTime(new Date(Number(d.time) * 1000)) : fmtTime(new Date());
+          appendNote(who, d.message || "", when);
         });
-
-        form.addEventListener("submit", function (e) {
-          e.preventDefault();
-          const text = msgInput.value.trim();
-          if (!text) { msgInput.focus(); return; }
-          const isAnon = anonInput.checked;
-          const rawName = nameInput.value.trim();
-          const who = isAnon ? "匿名访客" : (rawName || "未署名");
-
-          lettersCol.add({
-            name: isAnon ? "" : rawName,
-            message: text,
-            anon: isAnon,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(function () {
-            announce(who);
-            form.reset();
-            msgInput.focus();
-          }).catch(function () {
-            if (hint) hint.textContent = "发送失败，请稍后再试。";
-          });
-        });
-
         renderEmpty();
-        return;
-      } catch (err) {
-        if (hint) hint.textContent = "留言加载失败，已切换为临时模式。";
-      }
+      };
+
+      const loadLetters = function () {
+        fetch(colUrl + "?sort=time&dir=-1&max=100", { headers: headers })
+          .then(function (res) {
+            if (!res.ok) throw new Error("load failed");
+            return res.json();
+          })
+          .then(renderFromData)
+          .catch(function () {
+            if (hint) hint.textContent = "留言加载失败，请稍后重试。";
+          });
+      };
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const text = msgInput.value.trim();
+        if (!text) { msgInput.focus(); return; }
+        const isAnon = anonInput.checked;
+        const rawName = nameInput.value.trim();
+        const who = isAnon ? "匿名访客" : (rawName || "未署名");
+
+        const payload = {
+          name: who,
+          message: text,
+          time: Math.floor(Date.now() / 1000)
+        };
+
+        fetch(colUrl, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(payload)
+        }).then(function (res) {
+          if (!res.ok) throw new Error("post failed");
+          return res.json();
+        }).then(function () {
+          announce(who);
+          form.reset();
+          msgInput.focus();
+          loadLetters();
+        }).catch(function () {
+          if (hint) hint.textContent = "发送失败，请稍后再试。";
+        });
+      });
+
+      loadLetters();
+
+      // 自动刷新：每 30 秒同步一次（仅页面可见时）
+      pollTimer = setInterval(function () {
+        if (!document.hidden) loadLetters();
+      }, 30000);
+
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) loadLetters();
+      });
+
+      return;
     }
 
     // ---------- 降级：临时模式（刷新即消失） ----------
@@ -342,8 +364,8 @@
 
   /* ---------- 关系照片墙：点击放大查看 ---------- */
   function initRelLightbox() {
-    const pins = document.querySelectorAll(".rel-pin");
-    if (!pins.length) return;
+    const cards = document.querySelectorAll(".rel-card");
+    if (!cards.length) return;
 
     // 创建 lightbox（克隆照片墙相框样式）
     const lb = document.createElement("div");
@@ -355,21 +377,23 @@
       '<div class="rel-lightbox__stage">' +
       '<span class="rel-lightbox__hint">Click anywhere to close · 点击任意处关闭</span>' +
       '<button class="rel-lightbox__close" aria-label="关闭">×</button>' +
-      '<figure class="rel-pin" aria-hidden="true"></figure>' +
+      '<figure class="rel-card" aria-hidden="true"></figure>' +
       '</div>';
     document.body.appendChild(lb);
 
-    const figure = lb.querySelector(".rel-pin");
+    const figure = lb.querySelector(".rel-card");
 
-    const open = function (pin) {
-      const img = pin.querySelector("img");
-      const name = pin.querySelector(".rel-pin__name");
+    const open = function (card) {
+      const img = card.querySelector("img");
+      const name = card.querySelector(".rel-card__name");
       figure.innerHTML = "";
-      const imgClone = img.cloneNode(true);
+      const photo = document.createElement("div");
+      photo.className = "rel-card__photo";
+      photo.appendChild(img.cloneNode(true));
       const cap = document.createElement("figcaption");
-      cap.innerHTML = '<span class="rel-pin__name"></span>';
-      cap.querySelector(".rel-pin__name").textContent = name ? name.textContent : "";
-      figure.appendChild(imgClone);
+      cap.innerHTML = '<span class="rel-card__name"></span>';
+      cap.querySelector(".rel-card__name").textContent = name ? name.textContent : "";
+      figure.appendChild(photo);
       figure.appendChild(cap);
       lb.classList.add("is-open");
       document.body.style.overflow = "hidden";
@@ -379,8 +403,8 @@
       document.body.style.overflow = "";
     };
 
-    pins.forEach(function (pin) {
-      pin.addEventListener("click", function () { open(pin); });
+    cards.forEach(function (card) {
+      card.addEventListener("click", function () { open(card); });
     });
 
     lb.addEventListener("click", function (e) {
@@ -390,6 +414,66 @@
 
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && lb.classList.contains("is-open")) close();
+    });
+  }
+
+  /* ---------- 背景音乐：尝试自动播放 + 悬浮按钮控制 ---------- */
+  function initBgm() {
+    if (document.querySelector(".music-fab")) return;
+
+    const audio = document.createElement("audio");
+    audio.id = "siteBgm";
+    audio.loop = true;
+    audio.preload = "auto";
+    audio.src = "assets/bgm1.wav";
+    document.body.appendChild(audio);
+
+    const btn = document.createElement("button");
+    btn.className = "music-fab";
+    btn.id = "musicFab";
+    btn.setAttribute("aria-label", "播放背景音乐");
+    btn.innerHTML = '<span class="music-fab__ico" aria-hidden="true">♪</span>';
+    document.body.appendChild(btn);
+
+    const setPlaying = function (playing) {
+      btn.classList.toggle("is-playing", playing);
+      btn.setAttribute("aria-label", playing ? "暂停背景音乐" : "播放背景音乐");
+      btn.querySelector(".music-fab__ico").textContent = playing ? "♪" : "♪";
+    };
+
+    // 尝试自动播放（浏览器可能拦截）
+    const tryPlay = function () {
+      const p = audio.play();
+      if (p && p.then) {
+        p.then(function () { setPlaying(true); })
+         .catch(function () { setPlaying(false); });
+      } else {
+        setPlaying(false);
+      }
+    };
+
+    // 记住用户偏好（跨页面保持）
+    const saved = localStorage.getItem("bgm-off");
+    if (saved !== "1") {
+      tryPlay();
+    } else {
+      setPlaying(false);
+    }
+
+    btn.addEventListener("click", function () {
+      if (audio.paused) {
+        const p = audio.play();
+        if (p && p.then) {
+          p.then(function () {
+            setPlaying(true);
+            try { localStorage.setItem("bgm-off", "0"); } catch (e) {}
+          }).catch(function () { setPlaying(false); });
+        }
+      } else {
+        audio.pause();
+        setPlaying(false);
+        try { localStorage.setItem("bgm-off", "1"); } catch (e) {}
+      }
     });
   }
 
@@ -403,5 +487,6 @@
     initPageTransition();
     initPhotoStack();
     initRelLightbox();
+    initBgm();
   });
 })();

@@ -586,103 +586,123 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 .about-motto .q { color: var(--russet); }
 
 /* ============================================================
-   关系 · 软木板照片墙（错落，一屏完整呈现）
+   关系 · 照片墙（玻璃展柜 · 打印纸 · 翘边 · 杂乱美）
    ============================================================ */
-.rel-board {
+.rel-wall {
+  position: relative;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  align-content: center;
-  column-gap: clamp(18px, 2.4vw, 30px);
-  row-gap: clamp(16px, 2vw, 26px);
-  /* 软木板质感 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* 柜内深色背景 */
+  background: #26221d;
+  /* 深木柜框 */
+  border: 12px solid #443a2c;
+  box-shadow:
+    inset 0 0 80px rgba(0,0,0,.62),
+    inset 0 0 8px rgba(0,0,0,.4),
+    0 14px 40px rgba(0,0,0,.38);
+  padding: 26px 20px 40px;
+}
+.rel-wall::-webkit-scrollbar { width: 7px; }
+.rel-wall::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); border-radius: 4px; }
+.rel-wall::-webkit-scrollbar-track { background: transparent; }
+/* 玻璃反光：斜向高光带，固定在玻璃层 */
+.rel-wall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(circle at 20% 30%, rgba(90,60,35,.16) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 80% 70%, rgba(90,60,35,.14) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 50% 15%, rgba(90,60,35,.12) 0 1px, transparent 1.6px),
-    linear-gradient(140deg, #c9a77a, #bd9870 55%, #d2b183);
-  background-size: 90px 90px, 70px 70px, 55px 55px, 100% 100%;
-  border: 1px solid rgba(120,85,50,.35);
-  box-shadow: inset 0 0 40px rgba(70,45,20,.25), inset 0 0 4px rgba(70,45,20,.2);
-  padding: clamp(16px, 2.5vw, 30px);
+    linear-gradient(115deg, transparent 24%, rgba(255,255,255,.06) 34%, rgba(255,255,255,.14) 42%, rgba(255,255,255,.04) 50%, transparent 58%),
+    linear-gradient(115deg, transparent 62%, rgba(255,255,255,.05) 74%, transparent 82%);
+  pointer-events: none;
+  z-index: 30;
 }
 
-.rel-pin {
+.rel-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 22px 26px;
+}
+
+/* 每张照片 = 一张打印纸（深色背景上投射阴影） */
+.rel-card {
   position: relative;
-  flex: 0 0 auto;
-  background: #fdfaf3;
-  padding: 7px 7px 11px;
+  background: #fdfdfa;
+  padding: 9px 9px 20px;
   box-shadow:
-    0 1px 2px rgba(40,25,10,.2),
-    0 8px 22px rgba(40,25,10,.32);
-  transition: transform .4s var(--ease), box-shadow .4s var(--ease);
+    0 2px 4px rgba(0,0,0,.35),
+    0 10px 22px rgba(0,0,0,.40),
+    0 20px 44px rgba(0,0,0,.30);
   cursor: zoom-in;
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease);
 }
-/* 照片等比缩小：按各自宽高比设定宽度，错落 + 轻微旋转 + 垂直波浪 */
-.rel-pin:nth-child(1) { width: clamp(96px, 11vw, 130px); transform: rotate(-2.6deg); }
-.rel-pin:nth-child(2) { width: clamp(130px, 16vw, 190px); transform: rotate(1.8deg) translateY(10px); }
-.rel-pin:nth-child(3) { width: clamp(150px, 18vw, 215px); transform: rotate(-1.2deg) translateY(2px); }
-.rel-pin:nth-child(4) { width: clamp(128px, 15.5vw, 185px); transform: rotate(2.4deg) translateY(12px); }
-.rel-pin:nth-child(5) { width: clamp(120px, 14.5vw, 172px); transform: rotate(-1.8deg) translateY(-4px); }
-.rel-pin:hover {
-  transform: rotate(0deg) translateY(-6px);
-  box-shadow:
-    0 2px 4px rgba(40,25,10,.22),
-    0 16px 34px rgba(40,25,10,.4);
-  z-index: 4;
+/* 杂乱美：六种角度 + 位移，随机错落 */
+.rel-card:nth-child(6n+1) { transform: rotate(-4.5deg) translateY(-7px); }
+.rel-card:nth-child(6n+2) { transform: rotate(3.6deg) translateY(12px); }
+.rel-card:nth-child(6n+3) { transform: rotate(-2.2deg) translateY(4px); }
+.rel-card:nth-child(6n+4) { transform: rotate(5.2deg) translateY(-10px); }
+.rel-card:nth-child(6n+5) { transform: rotate(-5.8deg) translateY(9px); }
+.rel-card:nth-child(6n) { transform: rotate(2.8deg) translateY(-14px); }
+.rel-card:hover {
+  transform: rotate(0deg) translateY(-8px) scale(1.04);
+  box-shadow: 0 4px 10px rgba(0,0,0,.4), 0 18px 40px rgba(0,0,0,.45), 0 36px 70px rgba(0,0,0,.32);
+  z-index: 6;
 }
-/* 图钉：更精致的金属图钉 */
-.rel-pin::before {
+
+/* 纸张底部翘边：椭圆阴影（纸边离开墙面） */
+.rel-card::before {
   content: "";
   position: absolute;
-  top: -8px; left: 50%;
-  transform: translateX(-50%);
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, #ffd98a, #dfa83f 45%, #a87922 70%, #7a5a1c);
-  box-shadow: 0 2px 4px rgba(40,25,10,.5), inset 0 -1px 1px rgba(0,0,0,.3);
-  z-index: 3;
+  left: 7%;
+  right: 7%;
+  bottom: -9px;
+  height: 18px;
+  background: radial-gradient(ellipse 52% 100% at center, rgba(0,0,0,.32), transparent 74%);
+  filter: blur(2px);
+  z-index: -1;
 }
-.rel-pin::after {
+/* 右下角卷角（纸角折起，露出纸背） */
+.rel-card::after {
   content: "";
   position: absolute;
-  top: -2px; left: 50%;
-  transform: translateX(-50%);
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.55);
-  z-index: 4;
+  right: -1px;
+  bottom: -1px;
+  width: 0;
+  height: 0;
+  border-width: 0 0 16px 16px;
+  border-style: solid;
+  border-color: transparent transparent #e7e0d3 transparent;
   pointer-events: none;
 }
-.rel-pin img {
-  width: 100%;
-  height: auto;
+
+.rel-card__photo {
+  position: relative;
+  background: #f3efe6;
+  overflow: hidden;
+}
+.rel-card__photo img {
   display: block;
-  filter: sepia(.04) saturate(.95) contrast(1.01);
+  width: auto;
+  max-height: 124px;
+  filter: saturate(.9) contrast(1.04);
 }
-.rel-pin figcaption {
-  padding-top: 8px;
+/* 照片大小差异，增强杂乱感 */
+.rel-card:nth-child(3n) .rel-card__photo img { max-height: 152px; }
+.rel-card:nth-child(5n) .rel-card__photo img { max-height: 98px; }
+
+.rel-card figcaption {
   text-align: center;
+  padding-top: 9px;
 }
-.rel-pin__name {
+.rel-card__name {
   font-family: var(--font-serif);
-  font-size: 13px;
-  letter-spacing: .08em;
-  color: var(--ink);
-  display: inline-block;
-  border-bottom: 1px solid var(--line-strong);
-  padding-bottom: 1px;
-}
-.rel-note {
-  flex: 0 0 auto;
-  margin: 10px 0 0;
-  font-size: 11px;
-  color: var(--ink-faint);
-  line-height: 1.6;
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: var(--ink-soft);
 }
 
 /* 照片点击放大查看（lightbox） */
@@ -711,32 +731,21 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   transition: transform .3s var(--ease);
 }
 .rel-lightbox.is-open .rel-lightbox__stage { transform: scale(1); }
-/* 放大视图复用照片墙的相框样式 */
-.rel-lightbox .rel-pin {
-  width: min(78vw, 620px);
-  max-width: none;
+/* 放大视图：打印纸等比放大，保留纸张质感与卷角 */
+.rel-lightbox .rel-card {
   transform: none;
-  padding: 12px 12px 18px;
-  background: #fdfaf3;
-  box-shadow: 0 30px 70px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.3);
   cursor: default;
+  padding: 16px 16px 36px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18), 0 18px 40px rgba(0,0,0,.34), 0 40px 90px rgba(0,0,0,.28);
 }
-.rel-lightbox .rel-pin:hover { transform: none; }
-.rel-lightbox .rel-pin::before {
-  width: 18px; height: 18px;
-  top: -9px;
+.rel-lightbox .rel-card:hover { transform: none; }
+.rel-lightbox .rel-card__photo img {
+  max-height: min(68vh, 620px);
+  width: auto;
+  filter: saturate(.94) contrast(1.02);
 }
-.rel-lightbox .rel-pin::after {
-  width: 5px; height: 5px;
-  top: -2px;
-}
-.rel-lightbox .rel-pin img {
-  width: 100%;
-  height: auto;
-  max-height: 74vh;
-  object-fit: contain;
-}
-.rel-lightbox .rel-pin__name { font-size: 17px; }
+.rel-lightbox .rel-card::after { border-width: 0 0 26px 26px; }
+.rel-lightbox .rel-card__name { font-size: 17px; letter-spacing: .16em; color: var(--ink); }
 .rel-lightbox__close {
   position: absolute;
   top: -44px;
@@ -1176,7 +1185,10 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   .coffee-note { grid-template-columns: 1fr; }
   .photo-stack { display: none; }
 
-  .rel-board { column-gap: 12px; row-gap: 12px; }
+  .rel-grid { gap: 16px 18px; }
+  .rel-card__photo img { max-height: 104px; }
+  .rel-card:nth-child(3n) .rel-card__photo img { max-height: 128px; }
+  .rel-card:nth-child(5n) .rel-card__photo img { max-height: 82px; }
 
   /* 旅行页手机端：地图按比例铺满宽度，页面可纵向滚动 */
   .page-map { overflow-y: auto; -webkit-overflow-scrolling: touch; }
@@ -1228,7 +1240,11 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   .identity__item:nth-child(n+3) { border-top: 1px solid var(--line); }
   .identity__value { white-space: normal; font-size: 15px; line-height: 1.5; }
 
-  .rel-board { overflow-y: auto; align-items: flex-start; column-gap: 12px; row-gap: 12px; }
+  .rel-grid { gap: 12px 14px; }
+  .rel-card__photo img { max-height: 86px; }
+  .rel-card:nth-child(3n) .rel-card__photo img { max-height: 106px; }
+  .rel-card:nth-child(5n) .rel-card__photo img { max-height: 68px; }
+  .rel-card__name { font-size: 10px; letter-spacing: .12em; }
 
   .film-card { width: clamp(140px, 42vw, 190px); }
   .film-card__body h3 { font-size: 15px; }
@@ -1263,4 +1279,42 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   }
   .vinyl__disc { animation: none; }
   .now-playing__cover.is-spinning img { animation: none; }
+}
+
+/* ============================================================
+   背景音乐 · 悬浮播放按钮
+   ============================================================ */
+.music-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 58px;
+  z-index: 90;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: rgba(244, 241, 234, .92);
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  transition: transform .3s var(--ease), background .3s var(--ease), color .3s var(--ease);
+}
+.music-fab:hover { transform: translateY(-2px); background: #fff; }
+.music-fab__ico {
+  font-size: 19px;
+  line-height: 1;
+  display: block;
+}
+.music-fab.is-playing { color: var(--russet); border-color: var(--russet); }
+.music-fab.is-playing .music-fab__ico {
+  animation: musicPulse 2.2s ease-in-out infinite;
+}
+@keyframes musicPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
 }
