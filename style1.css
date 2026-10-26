@@ -1040,10 +1040,40 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 .game-list {
   flex: 1; min-height: 0; padding: 10px 0;
   display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  overflow-y: auto;
 }
 .game-row {
   display: flex; align-items: center; gap: clamp(16px, 3vw, 32px);
   padding: 16px 6px; border: 1px solid var(--line);
+}
+.game-row--featured { align-items: flex-start; padding: 17px 6px 15px; }
+.game-row__body { min-width: 0; flex: 1 1 auto; }
+
+/* 王者荣耀 · 战绩档案 */
+.game-stats {
+  display: flex; flex-wrap: wrap; gap: 5px 20px;
+  margin-top: 10px; padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+.game-stat { display: inline-flex; align-items: baseline; gap: 7px; }
+.game-stat b {
+  font-family: var(--font-latin); font-weight: 500;
+  font-size: 16px; letter-spacing: .02em; color: var(--russet);
+}
+.game-stat i {
+  font-style: normal; font-family: var(--font-sans);
+  font-size: 10px; letter-spacing: .1em; color: var(--ink-faint);
+}
+.game-heroes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.game-hero {
+  display: inline-flex; align-items: baseline; gap: 5px;
+  font-family: var(--font-serif); font-size: 11px;
+  letter-spacing: .04em; color: var(--ink-soft);
+  padding: 3px 9px; border: 1px solid var(--line); border-radius: 2px;
+}
+.game-hero b {
+  font-family: var(--font-latin); font-weight: 500;
+  font-size: 10px; letter-spacing: .02em; color: var(--russet);
 }
 .game-row__icon {
   flex: 0 0 auto; width: clamp(52px, 6vw, 68px); aspect-ratio: 1;
@@ -1324,6 +1354,10 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   .paper-slips { grid-template-columns: 1fr; }
   .game-row { flex-wrap: wrap; }
   .game-row .no { width: 100%; margin-left: 0; }
+  .game-row--featured { flex-wrap: wrap; }
+  .game-stats { gap: 4px 16px; }
+  .game-stat b { font-size: 14px; }
+  .game-hero { font-size: 10px; padding: 2px 8px; }
 
   .timeline__row { grid-template-columns: 1fr; gap: 16px; overflow-y: auto; }
   .timeline__row::before { display: none; }
