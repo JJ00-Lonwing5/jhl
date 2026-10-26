@@ -853,6 +853,37 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 .now-playing.is-playing .waveform i:nth-child(3n) { animation-delay: .24s; }
 @keyframes wave { 0%, 100% { height: 18%; } 50% { height: 92%; } }
 
+/* 听歌印象 · 散落标签墙 */
+.music-tagwall {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 9px;
+  padding: 2px 0 12px;
+  max-height: 76px;
+  overflow: hidden;
+}
+.music-tag {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  letter-spacing: .08em;
+  padding: 4px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, .45);
+  white-space: nowrap;
+  transform: rotate(var(--r, 0deg));
+  transition: transform .3s var(--ease), color .3s var(--ease),
+              border-color .3s var(--ease), background .3s var(--ease);
+}
+.music-tag:hover {
+  transform: rotate(0deg) translateY(-2px);
+  color: var(--russet);
+  border-color: var(--russet);
+  background: var(--paper-2);
+}
+
 .music-scroll {
   flex: 1;
   min-height: 0;
@@ -1205,6 +1236,8 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   .music-cats { grid-template-columns: 1fr; gap: 10px; height: auto; }
   .music-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .cat { overflow: visible; padding-right: 0; }
+  .music-tagwall { max-height: 62px; gap: 6px 8px; padding-bottom: 10px; }
+  .music-tag { font-size: 10px; padding: 3px 9px; }
 
   .film-card { width: clamp(150px, 34vw, 210px); }
   .reel-hint { display: none; }
