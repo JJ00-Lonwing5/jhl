@@ -34,22 +34,40 @@
     </section>
 
     <section class="letters-wrap">
+      <form class="letter-form" id="letterForm" novalidate>
+        <p class="no">Letter / 09</p>
+        <p class="lead">写下一封短小的信，它会落在下面的纸片上。</p>
+
+        <div class="field">
+          <label for="letterName">你的名字（可选）</label>
+          <input type="text" id="letterName" name="name" autocomplete="name" maxlength="40" placeholder="如何称呼你">
+        </div>
+
+        <div class="field">
+          <label for="letterMsg">留言内容（必填）</label>
+          <textarea id="letterMsg" name="message" required maxlength="1000" placeholder="写下你想说的话……"></textarea>
+        </div>
+
+        <label class="check-row">
+          <input type="checkbox" id="letterAnon">
+          匿名留言（显示为「匿名访客」）
+        </label>
+
+        <button type="submit" class="submit-btn">发送来信</button>
+        <p class="form-hint" id="letterHint">留言会永久保存，并实时显示在下方。</p>
+      </form>
+
       <div class="letter-feed">
         <div class="letter-feed__head">
           <h2>来信纸片</h2>
-          <span class="count">用 GitHub 账号留言 · 永久保存</span>
+          <span class="count" id="letterCount">0 封来信</span>
         </div>
+
         <div class="letter-list-scroll">
-          <div class="utterances-embed">
-            <script src="https://utteranc.es/client.js"
-                    repo="JJ00-Lonwing5/jhl"
-                    issue-term="pathname"
-                    theme="github-light"
-                    crossorigin="anonymous"
-                    async>
-            </script>
-          </div>
+          <div id="letterEmpty" class="letter-empty">还没有来信，做第一个停留的人吧。</div>
+          <div id="letterList" aria-live="polite"></div>
         </div>
+        <div id="letterLive" class="sr-only" aria-live="polite"></div>
       </div>
     </section>
 
