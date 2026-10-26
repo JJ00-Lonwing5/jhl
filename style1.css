@@ -1062,13 +1062,6 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   color: var(--russet);
   display: block;
 }
-.stat-img {
-  width: 23px; height: 23px;
-  flex: 0 0 auto;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgba(40, 25, 10, .18));
-}
 .game-stat b {
   font-family: var(--font-latin); font-weight: 500;
   font-size: 16px; letter-spacing: .02em; color: var(--russet);
