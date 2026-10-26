@@ -1118,11 +1118,11 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 .contact-desk .stationery { position: relative; z-index: 1; margin-top: 16px; font-family: var(--font-serif); font-size: 14px; line-height: 2.2; color: var(--ink-soft); }
 
 /* ============================================================
-   letters · 单屏
+   letters · 来信（Utterances 评论 · 存 GitHub Issues）
    ============================================================ */
 .letters-wrap {
-  flex: 1; min-height: 0; display: grid; grid-template-columns: .82fr 1.18fr;
-  gap: clamp(16px, 3.5vw, 44px); padding: 12px 0; overflow: hidden;
+  flex: 1; min-height: 0; display: block;
+  padding: 10px 0 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .letter-form {
   background: var(--paper-2); border: 1px solid var(--line);
@@ -1153,14 +1153,25 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 .submit-btn:hover { background: var(--russet-deep); }
 .form-hint { margin-top: 10px; font-size: 11px; color: var(--ink-faint); }
 
-.letter-feed { min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.letter-feed { min-height: 0; display: flex; flex-direction: column; }
 .letter-feed__head {
-  flex: 0 0 auto; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 8px;
+  flex: 0 0 auto; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 10px;
   display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
 }
 .letter-feed__head h2 { font-family: var(--font-serif); font-weight: 500; letter-spacing: .08em; font-size: 19px; margin: 0; }
 .letter-feed__head .count { font-family: var(--font-latin); font-size: 11px; color: var(--ink-faint); }
-.letter-list-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.letter-list-scroll { padding: 2px 0 0; }
+
+/* Utterances 评论容器 */
+.utterances-embed {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 4px 0 12px;
+}
+.utterances-embed iframe {
+  width: 100% !important;
+  border: 0;
+}
 .letter-note {
   position: relative; padding: 14px 18px; margin: 10px 0; background: var(--paper-2);
   border: 1px solid var(--line); box-shadow: 2px 2px 0 var(--paper-3); transform: rotate(-.4deg);
@@ -1244,8 +1255,6 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 
   .contact-grid { grid-template-columns: 1fr; }
   .contact-desk { display: none; }
-  .letters-wrap { grid-template-columns: 1fr; }
-  .letter-feed { display: none; }
 
   .timeline__row { grid-template-columns: repeat(3, 1fr); gap: 12px; }
 }

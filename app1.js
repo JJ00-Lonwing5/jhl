@@ -4,16 +4,6 @@
 (function () {
   "use strict";
 
-  /* ---------- 留言数据库配置（restdb.io，国内可访问） ----------
-     网址、Key、集合都由本站配置好，无需改动。
-  ------------------------------------------------------------- */
-  const RESTDB_CONFIG = {
-    url: "https://letterjj-21c7.restdb.io",
-    apiKey: "6ad605f40f7a2937358bd168",
-    collection: "letters"
-  };
-  const RESTDB_ON = !!(RESTDB_CONFIG.url && RESTDB_CONFIG.apiKey);
-
   /* ---------- 移动端菜单（MENU / Escape 关闭） ---------- */
   function initMenu() {
     const btn = document.getElementById("menuBtn");
@@ -117,167 +107,6 @@
         ? '<span class="ico" aria-hidden="true">❚❚</span> 暂停'
         : '<span class="ico" aria-hidden="true">▶</span> 播放';
     });
-  }
-
-  /* ---------- 远方来信：Firebase 永久保存 + 实时显示（未配置则临时模式） ---------- */
-  function initLetters() {
-    const form = document.getElementById("letterForm");
-    if (!form) return;
-    const nameInput = document.getElementById("letterName");
-    const msgInput = document.getElementById("letterMsg");
-    const anonInput = document.getElementById("letterAnon");
-    const list = document.getElementById("letterList");
-    const countEl = document.getElementById("letterCount");
-    const empty = document.getElementById("letterEmpty");
-    const live = document.getElementById("letterLive");
-    const hint = document.getElementById("letterHint");
-
-    let count = 0;
-
-    const fmtTime = function (d) {
-      const p = function (n) { return String(n).padStart(2, "0"); };
-      return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) +
-        "  " + p(d.getHours()) + ":" + p(d.getMinutes());
-    };
-
-    const renderEmpty = function () {
-      if (empty) empty.style.display = count === 0 ? "block" : "none";
-      if (countEl) countEl.textContent = count + " 封来信";
-    };
-
-    const createNote = function (who, text, when) {
-      const note = document.createElement("article");
-      note.className = "letter-note";
-
-      const head = document.createElement("div");
-      head.className = "letter-note__head";
-      const whoSpan = document.createElement("span");
-      whoSpan.className = "who";
-      whoSpan.textContent = who;
-      const whenSpan = document.createElement("span");
-      whenSpan.className = "when";
-      whenSpan.textContent = when;
-      head.appendChild(whoSpan);
-      head.appendChild(whenSpan);
-
-      const body = document.createElement("p");
-      body.textContent = text;
-
-      note.appendChild(head);
-      note.appendChild(body);
-      return note;
-    };
-
-    const appendNote = function (who, text, when) {
-      list.insertBefore(createNote(who, text, when), list.firstChild);
-      count += 1;
-      if (empty) empty.style.display = "none";
-      if (countEl) countEl.textContent = count + " 封来信";
-    };
-
-    const announce = function (who) {
-      if (live) {
-        live.textContent = "";
-        live.textContent = "收到来自 " + who + " 的留言";
-      }
-    };
-
-    // ---------- restdb.io 模式：永久保存 + 自动刷新显示 ----------
-    if (RESTDB_ON && window.fetch) {
-      const colUrl = RESTDB_CONFIG.url + "/rest/" + RESTDB_CONFIG.collection;
-      const headers = {
-        "x-apikey": RESTDB_CONFIG.apiKey,
-        "Content-Type": "application/json"
-      };
-      let pollTimer = null;
-
-      if (hint) hint.textContent = "留言会永久保存，并实时显示在下方。";
-
-      const renderFromData = function (data) {
-        if (!Array.isArray(data)) throw new Error("bad data");
-        list.innerHTML = "";
-        count = 0;
-        data.forEach(function (d) {
-          const who = d.name || "未署名";
-          const when = d.time ? fmtTime(new Date(Number(d.time) * 1000)) : fmtTime(new Date());
-          appendNote(who, d.message || "", when);
-        });
-        renderEmpty();
-      };
-
-      const loadLetters = function () {
-        fetch(colUrl + "?sort=time&dir=-1&max=100", { headers: headers })
-          .then(function (res) {
-            if (!res.ok) throw new Error("load failed");
-            return res.json();
-          })
-          .then(renderFromData)
-          .catch(function () {
-            if (hint) hint.textContent = "留言加载失败，请稍后重试。";
-          });
-      };
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const text = msgInput.value.trim();
-        if (!text) { msgInput.focus(); return; }
-        const isAnon = anonInput.checked;
-        const rawName = nameInput.value.trim();
-        const who = isAnon ? "匿名访客" : (rawName || "未署名");
-
-        const payload = {
-          name: who,
-          message: text,
-          time: Math.floor(Date.now() / 1000)
-        };
-
-        fetch(colUrl, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(payload)
-        }).then(function (res) {
-          if (!res.ok) throw new Error("post failed");
-          return res.json();
-        }).then(function () {
-          announce(who);
-          form.reset();
-          msgInput.focus();
-          loadLetters();
-        }).catch(function () {
-          if (hint) hint.textContent = "发送失败，请稍后再试。";
-        });
-      });
-
-      loadLetters();
-
-      // 自动刷新：每 30 秒同步一次（仅页面可见时）
-      pollTimer = setInterval(function () {
-        if (!document.hidden) loadLetters();
-      }, 30000);
-
-      document.addEventListener("visibilitychange", function () {
-        if (!document.hidden) loadLetters();
-      });
-
-      return;
-    }
-
-    // ---------- 降级：临时模式（刷新即消失） ----------
-    if (hint) hint.textContent = "留言仅保存在当前页面，刷新后会自动消失。";
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const text = msgInput.value.trim();
-      if (!text) { msgInput.focus(); return; }
-      const isAnon = anonInput.checked;
-      const rawName = nameInput.value.trim();
-      const who = isAnon ? "匿名访客" : (rawName || "未署名");
-
-      appendNote(who, text, fmtTime(new Date()));
-      announce(who);
-      form.reset();
-      msgInput.focus();
-    });
-    renderEmpty();
   }
 
   /* ---------- 电影轮播：左右箭头 ---------- */
@@ -421,7 +250,6 @@
     initMenu();
     initCopyContact();
     initPlayToggle();
-    initLetters();
     initFilmReel();
     initActiveNav();
     initPageTransition();
