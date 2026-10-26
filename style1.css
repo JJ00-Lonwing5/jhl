@@ -1051,19 +1051,23 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 
 /* 王者荣耀 · 战绩档案 */
 .game-stats {
-  display: flex; flex-wrap: wrap; gap: 5px 20px;
+  display: flex; flex-wrap: wrap; gap: 7px 22px;
   margin-top: 10px; padding-top: 9px;
   border-top: 1px solid var(--line);
 }
-.game-stat { display: inline-flex; align-items: baseline; gap: 7px; }
+.game-stat { display: inline-flex; align-items: center; gap: 7px; }
+.stat-ico {
+  width: 19px; height: 19px;
+  flex: 0 0 auto;
+  color: var(--russet);
+  display: block;
+}
 .game-stat b {
   font-family: var(--font-latin); font-weight: 500;
   font-size: 16px; letter-spacing: .02em; color: var(--russet);
+  display: inline-flex; align-items: baseline; gap: 1px;
 }
-.game-stat i {
-  font-style: normal; font-family: var(--font-sans);
-  font-size: 10px; letter-spacing: .1em; color: var(--ink-faint);
-}
+.game-stat .star { font-size: .72em; }
 .game-heroes { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
 .game-hero {
   display: inline-flex; align-items: center; gap: 7px;
