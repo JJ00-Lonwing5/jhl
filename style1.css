@@ -853,6 +853,45 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
 .now-playing.is-playing .waveform i:nth-child(3n) { animation-delay: .24s; }
 @keyframes wave { 0%, 100% { height: 18%; } 50% { height: 92%; } }
 
+/* 听歌画像 · 一句话概括 */
+.music-portrait {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px clamp(14px, 3vw, 30px);
+  padding: 2px 0 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 10px;
+}
+.music-portrait__label {
+  margin: 0;
+  font-family: var(--font-latin);
+  font-size: 9px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--russet);
+  flex: 0 0 auto;
+}
+.music-portrait__quote {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(13px, 1.5vw, 15px);
+  line-height: 1.75;
+  letter-spacing: .03em;
+  color: var(--ink-soft);
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.music-portrait__caption {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: var(--ink-faint);
+  flex: 0 0 auto;
+}
+
 /* 听歌印象 · 散落标签墙 */
 .music-tagwall {
   flex: 0 0 auto;
