@@ -1064,12 +1064,27 @@ button { font-family: inherit; font-size: inherit; color: inherit; background: n
   font-style: normal; font-family: var(--font-sans);
   font-size: 10px; letter-spacing: .1em; color: var(--ink-faint);
 }
-.game-heroes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.game-heroes { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
 .game-hero {
-  display: inline-flex; align-items: baseline; gap: 5px;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 3px 11px 3px 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .4);
+  transition: border-color .3s var(--ease), background .3s var(--ease);
+}
+.game-hero:hover { border-color: var(--line-strong); background: var(--paper-2); }
+.game-hero img {
+  width: 27px; height: 27px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--line-strong);
+  flex: 0 0 auto;
+}
+.game-hero__name {
   font-family: var(--font-serif); font-size: 11px;
-  letter-spacing: .04em; color: var(--ink-soft);
-  padding: 3px 9px; border: 1px solid var(--line); border-radius: 2px;
+  letter-spacing: .04em; color: var(--ink);
 }
 .game-hero b {
   font-family: var(--font-latin); font-weight: 500;
